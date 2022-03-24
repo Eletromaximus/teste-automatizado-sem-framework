@@ -44,19 +44,20 @@ process.on('exit',() => callTracker.verify())
     }
   }
 
-  const spyOnCreate = callTracker.calls(1)
-  const onCreate = (msg) => {
-    spyOnCreate(msg)
+  const fn = (msg) => {
     assert.deepStrictEqual(msg.id, params.id, 'id should be the same')
     assert.deepStrictEqual(msg.price, params.price, 'price should be the same')
     assert.deepStrictEqual(msg.description, params.description.toUpperCase(), 'description should be the UpperCase')
   }
+
+  const spyOnCreate = callTracker.calls(fn, 1)
+
   const product = new Product({
-    onCreate: onCreate,
+    onCreate: spyOnCreate,
     // aqui fazemos o STUB
     service: serviceStub
   })
 
   const result = await product.create(params)
-  // product.create(params)
+  assert.deepStrictEqual(result, `${params.id} SAVED WITH SUCESS`)
 }
